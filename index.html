@@ -1,39 +1,640 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Password Changer</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Key Reset</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --primary: #0f1626;
+            --secondary: #00f7ff;
+            --accent: #ff00c3;
+            --text: #e0ffe6;
+            --glow: 0 0 10px rgba(0, 247, 255, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .cyber-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .grid {
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 247, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 247, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: absolute;
+        }
+        
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                transparent 50%,
+                rgba(0, 247, 255, 0.05) 50%,
+                rgba(0, 247, 255, 0.05)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 0 100%;
+            }
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background-color: rgba(15, 22, 38, 0.8);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                transparent,
+                transparent,
+                var(--accent),
+                transparent,
+                transparent
+            );
+            animation: rotate 8s linear infinite;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                var(--secondary),
+                var(--accent),
+                var(--secondary)
+            );
+            animation: shine 3s ease-in-out infinite;
+        }
+        
+        @keyframes shine {
+            0%, 100% {
+                transform: translateX(-100%);
+            }
+            50% {
+                transform: translateX(100%);
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            color: var(--text);
+            text-shadow: var(--glow);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+            margin-left: 5px;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+        }
+        
+        .input-label::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(0, 20, 30, 0.5);
+            border: 1px solid var(--secondary);
+            border-radius: 4px;
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+        
+        .password-input::placeholder {
+            color: rgba(224, 255, 230, 0.5);
+        }
+        
+        .requirements {
+            font-size: 0.8rem;
+            color: rgba(224, 255, 230, 0.7);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
+        .requirements strong {
+            color: var(--accent);
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .toggle-checkbox {
+            display: none;
+        }
+        
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+        
+        .toggle-slider {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background-color: rgba(0, 247, 255, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 12px;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            top: 1px;
+            left: 1px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-checkbox:checked + .toggle-label .toggle-slider {
+            background-color: rgba(255, 0, 195, 0.1);
+        }
+        
+        .toggle-checkbox:checked + .toggle-label .toggle-slider::before {
+            transform: translateX(26px);
+            background-color: var(--accent);
+        }
+        
+        .cyber-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid var(--secondary);
+            border-radius: 4px;
+            color: var(--secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 247, 255, 0.2),
+                transparent
+            );
+            transition: all 0.5s;
+        }
+        
+        .cyber-btn:hover {
+            background-color: rgba(0, 247, 255, 0.1);
+            box-shadow: var(--glow);
+            color: var(--text);
+        }
+        
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+        
+        .cyber-btn:active {
+            transform: translateY(2px);
+        }
+        
+        .success-container {
+            text-align: center;
+            display: none;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            text-shadow: var(--glow);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .success-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .success-subtext {
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background-color: rgba(0, 247, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(
+                90deg,
+                var(--secondary),
+                var(--accent)
+            );
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        .error-message {
+            color: #ff00c3;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .visible {
+            display: block;
+        }
+        
+        .password-strength {
+            height: 4px;
+            width: 100%;
+            background-color: rgba(224, 255, 230, 0.2);
+            margin-top: 8px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .strength-meter {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background-color 0.3s;
+            border-radius: 2px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <form id="passwordForm">
-      <h2>Change Password</h2>
+    <div class="cyber-bg">
+        <div class="grid"></div>
+    </div>
+    <div class="scanline"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Key Reset</h1>
+            <p class="subtitle">Secure authentication protocol</p>
+        </div>
+        
+        <form id="passwordForm">
+            <div class="form-group">
+                <label class="input-label">Current Access Key</label>
+                <input type="password" id="currentPassword" class="password-input" placeholder="Enter current key" required>
+                <div id="currentPasswordError" class="error-message"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="input-label">New Access Key</label>
+                <input type="password" id="newPassword" class="password-input" placeholder="Enter new key" required>
+                <div class="password-strength">
+                    <div id="strengthMeter" class="strength-meter"></div>
+                </div>
+                <div class="requirements">
+                    Key must contain: <strong>8+ chars</strong>, <strong>UPPER</strong>, <strong>lower</strong>, <strong>123</strong>, <strong>!@#</strong>
+                </div>
+                <div id="newPasswordError" class="error-message"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="input-label">Confirm New Key</label>
+                <input type="password" id="confirmPassword" class="password-input" placeholder="Re-enter new key" required>
+                <div id="confirmPasswordError" class="error-message"></div>
+            </div>
+            
+            <div class="toggle-container">
+                <input type="checkbox" id="showPasswords" class="toggle-checkbox">
+                <label for="showPasswords" class="toggle-label">
+                    <span class="toggle-slider"></span>
+                    Reveal Keys
+                </label>
+            </div>
+            
+            <button type="submit" class="cyber-btn">Execute Reset</button>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </form>
+        
+        <div id="successContainer" class="success-container">
+            <div class="success-icon">✓</div>
+            <p class="success-text">KEY RESET COMPLETE</p>
+            <p class="success-subtext">Your authentication credentials have been successfully updated</p>
+        </div>
+    </div>
 
-      <div class="form-group">
-        <label for="currentPassword">Current Password</label>
-        <input type="password" id="currentPassword" required />
-        <span class="toggle" onclick="togglePassword('currentPassword')">👁️</span>
-      </div>
-
-      <div class="form-group">
-        <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" required />
-        <span class="toggle" onclick="togglePassword('newPassword')">👁️</span>
-      </div>
-
-      <div class="form-group">
-        <label for="confirmPassword">Confirm New Password</label>
-        <input type="password" id="confirmPassword" required />
-        <span class="toggle" onclick="togglePassword('confirmPassword')">👁️</span>
-      </div>
-
-      <button type="submit">Update Password</button>
-      <p id="message"></p>
-    </form>
-  </div>
-
-  <script src="script.js"></script>
+    <script>
+        // Elements
+        const passwordForm = document.getElementById('passwordForm');
+        const currentPassword = document.getElementById('currentPassword');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const showPasswords = document.getElementById('showPasswords');
+        const successContainer = document.getElementById('successContainer');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const strengthMeter = document.getElementById('strengthMeter');
+        
+        // Error elements
+        const currentPasswordError = document.getElementById('currentPasswordError');
+        const newPasswordError = document.getElementById('newPasswordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        
+        // Password strength requirements
+        const strengthCriteria = {
+            minLength: 8,
+            hasUpperCase: /[A-Z]/,
+            hasLowerCase: /[a-z]/,
+            hasNumbers: /\d/,
+            hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
+            notSameAsCurrent: (current, newPassword) => current !== newPassword
+        };
+        
+        // Toggle password visibility
+        showPasswords.addEventListener('change', function() {
+            const type = this.checked ? 'text' : 'password';
+            currentPassword.type = type;
+            newPassword.type = type;
+            confirmPassword.type = type;
+        });
+        
+        // Password strength checker
+        newPassword.addEventListener('input', function() {
+            const strength = calculatePasswordStrength(this.value);
+            updateStrengthMeter(strength.score);
+            
+            // Clear error when typing
+            newPasswordError.style.display = 'none';
+        });
+        
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            const checks = [];
+            
+            if (password.length >= strengthCriteria.minLength) {
+                score += 25;
+                checks.push('length');
+            }
+            if (strengthCriteria.hasUpperCase.test(password)) {
+                score += 25;
+                checks.push('uppercase');
+            }
+            if (strengthCriteria.hasLowerCase.test(password)) {
+                score += 25;
+                checks.push('lowercase');
+            }
+            if (strengthCriteria.hasNumbers.test(password)) {
+                score += 25;
+                checks.push('numbers');
+            }
+            if (strengthCriteria.hasSpecialChar.test(password)) {
+                score += 25; // Extra points for special chars
+            }
+            
+            // Cap at 100
+            score = Math.min(score, 100);
+            
+            let level = 'weak';
+            let color = '#ff00c3';
+            
+            if (score >= 75) {
+                level = 'strong';
+                color = '#00f7ff';
+            } else if (score >= 50) {
+                level = 'medium';
+                color = '#ff8800';
+            }
+            
+            return { score, level, color, checks };
+        }
+        
+        function updateStrengthMeter(score) {
+            strengthMeter.style.width = `${score}%`;
+            strengthMeter.style.backgroundColor = calculatePasswordStrength(newPassword.value).color;
+        }
+        
+        // Form submission
+        passwordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset errors
+            currentPasswordError.style.display = 'none';
+            newPasswordError.style.display = 'none';
+            confirmPasswordError.style.display = 'none';
+            
+            let valid = true;
+            
+            // Validate current password (in real app, this would be checked server-side)
+            if (currentPassword.value.trim() === '') {
+                currentPasswordError.textContent = 'CURRENT KEY REQUIRED';
+                currentPasswordError.style.display = 'block';
+                valid = false;
+            }
+            
+            // Validate new password
+            const newPass = newPassword.value;
+            const currentPass = currentPassword.value;
+            
+            if (newPass.trim() === '') {
+                newPasswordError.textContent = 'NEW KEY REQUIRED';
+                newPasswordError.style.display = 'block';
+                valid = false;
+            } else {
+                const strength = calculatePasswordStrength(newPass);
+                
+                if (strength.score < 50) {
+                    newPasswordError.textContent = 'KEY TOO WEAK - ENHANCE SECURITY';
+                    newPasswordError.style.display = 'block';
+                    valid = false;
+                }
+                
+                if (currentPass === newPass) {
+                    newPasswordError.textContent = 'KEY MUST DIFFER FROM CURRENT';
+                    newPasswordError.style.display = 'block';
+                    valid = false;
+                }
+            }
+            
+            // Confirm password
+            if (newPass !== confirmPassword.value) {
+                confirmPasswordError.textContent = 'KEYS DO NOT MATCH';
+                confirmPasswordError.style.display = 'block';
+                valid = false;
+            }
+            
+            if (valid) {
+                // Show progress
+                progressContainer.style.display = 'block';
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 5;
+                    progressBar.style.width = `${width}%`;
+                    
+                    if (width >= 100) {
+                        clearInterval(interval);
+                        // Hide form and show success
+                        passwordForm.style.display = 'none';
+                        successContainer.style.display = 'block';
+                    }
+                }, 100);
+            }
+        });
+    </script>
 </body>
 </html>
