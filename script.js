@@ -19,7 +19,7 @@ document.getElementById("passwordForm").addEventListener("submit", function (e) 
   }
 
   // Simulate success
-  message.textContent = "Password updated successfully!";
+  message.innerHTML = '✅ <strong>Password updated successfully!</strong>';
   message.className = "success";
 
   // Clear form
